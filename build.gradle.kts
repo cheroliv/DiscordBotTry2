@@ -1,6 +1,12 @@
+import org.springframework.boot.gradle.tasks.run.BootRun
+import java.util.*
+
 plugins {
     `java-library`
     `maven-publish`
+    java
+    id("org.springframework.boot")
+    id("io.spring.dependency-management")
 }
 
 repositories {
@@ -36,4 +42,19 @@ tasks.withType<JavaCompile>() {
 
 tasks.withType<Javadoc>() {
     options.encoding = "UTF-8"
+}
+
+val privateProperties = Properties().apply {
+    val propertiesFile = rootProject.file("private.properties")
+    if (propertiesFile.exists()) {
+        load(propertiesFile.inputStream())
+    }
+}
+
+val token: String? = privateProperties.getProperty("TOKEN")
+
+tasks.withType<BootRun> {
+    if (token != null) {
+        environment("TOKEN", token)
+    }
 }
